@@ -47,7 +47,7 @@ DIR * getDIR( INODE * root, char * fname ) {
   char temp[64];
 
   for ( i = 0; i < 12; ++i ) {
-    u16 curBlk = root->i_block[i];
+    u16 curBlk = root->i_block[ i ];
     getblk( curBlk, buf2 );
 
     while ( totalLen < BLK ) {
@@ -64,17 +64,17 @@ DIR * getDIR( INODE * root, char * fname ) {
 }
 
 INODE * getINODE( u16 ino, u16 iblk, char * buf ) {
-  getblk( iblk + (u16)(ino-1)/(BLK/sizeof(INODE)), buf );
-  return ( INODE * ) buf + (u16)(ino-1)%(BLK/sizeof(INODE));
+  getblk( iblk + ( u16 )( ino-1 )/( BLK/sizeof( INODE ) ), buf );
+  return ( INODE * )buf + ( u16 )( ino-1 )%( BLK/sizeof( INODE ) );
 }
 main()
 { 
   u16    i, iblk, totalLen = 0;
   u32 * single_indir_blk_ptr;
-  char   c, temp[64];
+  char   c, temp[ 64 ];
   DIR * curDir;
   
-  getblk(2, buf1);
+  getblk(2, buf1 );
   gp = ( GD * )buf1;
 
   iblk = gp->bg_inode_table;
@@ -83,20 +83,20 @@ main()
   getblk( iblk, buf1 );
   
   curDir = getDIR( getINODE( 2, iblk, buf1), "boot" );  
-  curDir = getDIR( getINODE( (u16)curDir->inode, (u16)iblk, buf1 ), "mtx" );
-  ip = getINODE( (u16)curDir->inode, (u16)iblk, buf1 ); // disk img inode
-  getblk( (u16)ip->i_block[12], buf2 );
+  curDir = getDIR( getINODE( ( u16 )curDir->inode, ( u16 )iblk, buf1 ), "mtx" );
+  ip = getINODE( ( u16 )curDir->inode, ( u16 )iblk, buf1 ); // disk img inode
+  getblk( ( u16 )ip->i_block[ 12 ], buf2 );
   single_indir_blk_ptr = buf2;
   
   setes( 0x1000 );
 
   for (i = 0; i < 12; ++i) {
-    getblk( (u16)ip->i_block[i], 0 );
+    getblk( ( u16 )ip->i_block[ i ], 0 );
     inces();
   }
 
   while ( *single_indir_blk_ptr != 0 ) {
-    getblk( (u16)*single_indir_blk_ptr, 0 );
+    getblk( ( u16 )*single_indir_blk_ptr, 0 );
     single_indir_blk_ptr++;
     inces();
   }
