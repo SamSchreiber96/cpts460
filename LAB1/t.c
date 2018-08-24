@@ -13,6 +13,7 @@ typedef unsigned long  u32;
 typedef struct ext2_group_desc  GD;
 typedef struct ext2_inode       INODE;
 typedef struct ext2_dir_entry_2 DIR;
+
 GD    *gp;
 INODE *ip;
 DIR   *dp;
@@ -67,11 +68,11 @@ INODE * getINODE( u16 ino, u16 iblk, char * buf ) {
   getblk( iblk + ( u16 )( ino-1 )/( BLK/sizeof( INODE ) ), buf );
   return ( INODE * )buf + ( u16 )( ino-1 )%( BLK/sizeof( INODE ) );
 }
+
 main()
 { 
   u16    i, iblk, totalLen = 0;
   u32 * single_indir_blk_ptr;
-  char   c, temp[ 64 ];
   DIR * curDir;
   
   getblk(2, buf1 );
@@ -81,23 +82,25 @@ main()
 
   // get inode table
   getblk( iblk, buf1 );
-  
-  curDir = getDIR( getINODE( 2, iblk, buf1), "boot" );  
+  curDir = getDIR( getINODE( 2, iblk, buf1 ), "boot" );
   curDir = getDIR( getINODE( ( u16 )curDir->inode, ( u16 )iblk, buf1 ), "mtx" );
   ip = getINODE( ( u16 )curDir->inode, ( u16 )iblk, buf1 ); // disk img inode
   getblk( ( u16 )ip->i_block[ 12 ], buf2 );
   single_indir_blk_ptr = buf2;
-  
+
   setes( 0x1000 );
 
+  // direct blk
   for (i = 0; i < 12; ++i) {
     getblk( ( u16 )ip->i_block[ i ], 0 );
     inces();
   }
 
+  // single indir blk
   while ( *single_indir_blk_ptr != 0 ) {
     getblk( ( u16 )*single_indir_blk_ptr, 0 );
     single_indir_blk_ptr++;
     inces();
   }
 }  
+
