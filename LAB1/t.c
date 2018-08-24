@@ -1,6 +1,6 @@
 /*******************************************************
-*                      t.c file                        *
-*******************************************************/
+ *                      t.c file                        *
+ *******************************************************/
 typedef unsigned char  u8;
 typedef unsigned short u16;
 typedef unsigned long  u32;
@@ -22,14 +22,14 @@ int color = 0x0A;
 u8 ino;
 
 
-int prints(char *s)
+int prints( char *s )
 {
   while ( *s != 0 ) {
     putc( *s++ );
   }
 }
 
-int gets(char *s) 
+int gets( char *s ) 
 {
   while ( ( *s = getc() ) != '\r' ) {
     putc( *s++ );
@@ -37,7 +37,7 @@ int gets(char *s)
   *s = 0;
 }
 
-int getblk(u16 blk, char *buf)
+int getblk( u16 blk, char *buf )
 {
   readfd( ( 2*blk )/CYL, ( ( 2*blk )%CYL )/TRK, ( ( 2*blk )%CYL )%TRK, buf);
 }
@@ -63,14 +63,14 @@ DIR * getDIR( INODE * root, char * fname ) {
   return 0;
 }
 
-INODE * getINODE(u16 ino, u16 iblk, char * buf) {
+INODE * getINODE( u16 ino, u16 iblk, char * buf ) {
   getblk( iblk + (u16)(ino-1)/(BLK/sizeof(INODE)), buf );
   return ( INODE * ) buf + (u16)(ino-1)%(BLK/sizeof(INODE));
 }
 main()
 { 
   u16    i, iblk, totalLen = 0;
-  u32 * indir_blk_ptr;
+  u32 * single_indir_blk_ptr;
   char   c, temp[64];
   DIR * curDir;
   
@@ -86,18 +86,18 @@ main()
   curDir = getDIR( getINODE( (u16)curDir->inode, (u16)iblk, buf1 ), "mtx" );
   ip = getINODE( (u16)curDir->inode, (u16)iblk, buf1 ); // disk img inode
   getblk( (u16)ip->i_block[12], buf2 );
-  indir_blk_ptr = buf2;
+  single_indir_blk_ptr = buf2;
   
-  setes(0x1000);
+  setes( 0x1000 );
 
   for (i = 0; i < 12; ++i) {
-    getblk((u16)ip->i_block[i], 0);
+    getblk( (u16)ip->i_block[i], 0 );
     inces();
   }
 
-  while ( *indir_blk_ptr != 0 ) {
-    getblk( (u16)*indir_blk_ptr, 0 );
-    indir_blk_ptr++;
+  while ( *single_indir_blk_ptr != 0 ) {
+    getblk( (u16)*single_indir_blk_ptr, 0 );
+    single_indir_blk_ptr++;
     inces();
-    }
+  }
 }  
